@@ -8,6 +8,7 @@ import StudentDashboard from '@/pages/StudentDashboard'
 import SignalIntake from '@/pages/SignalIntake'
 import StudentList from '@/pages/StudentList'
 import SchoolList from '@/pages/SchoolList'
+import ScoringAlgorithm from '@/pages/ScoringAlgorithm'
 import { SIM_ALL_ACCESS, SIM_WRITE_ACCESS } from '@/lib/constants'
 
 function LoadingSpinner() {
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="signal/:studentId" element={<RequireRole allowedRoles={SIM_WRITE_ACCESS}><SignalIntake /></RequireRole>} />
           <Route path="students" element={<RequireRole allowedRoles={SIM_ALL_ACCESS}><StudentList /></RequireRole>} />
           <Route path="schools" element={<RequireRole allowedRoles={SIM_ALL_ACCESS}><SchoolList /></RequireRole>} />
+          <Route path="settings/scoring" element={<RequireRole allowedRoles={SIM_ALL_ACCESS}><ScoringAlgorithm /></RequireRole>} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
