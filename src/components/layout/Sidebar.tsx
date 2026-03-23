@@ -21,7 +21,7 @@ const SETTINGS_ITEMS: NavItem[] = [
 
 export default function Sidebar() {
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
+    <div className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-4 py-4 border-b border-gray-200">
         <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">

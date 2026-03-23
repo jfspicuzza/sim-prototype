@@ -74,12 +74,12 @@ export default function AttentionQueue() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Page Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <AlertTriangle className="w-6 h-6 text-amber-500" />
-          <h1 className="text-2xl font-bold text-gray-900">Attention Queue</h1>
+          <AlertTriangle className="w-5 md:w-6 h-5 md:h-6 text-amber-500" />
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Attention Queue</h1>
         </div>
         <p className="text-sm text-gray-500">
           Students requiring review, sorted by urgency.
@@ -126,10 +126,10 @@ export default function AttentionQueue() {
                   STATE_BORDER_COLORS[item.trci_state]
                 )}
               >
-                <div className="flex items-start justify-between gap-4">
-                  {/* Left: Student info + badges */}
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                  {/* Student info + badges */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className="font-semibold text-gray-900">
                         {student.last_name}, {student.first_name}
                       </span>
@@ -140,7 +140,7 @@ export default function AttentionQueue() {
                     </div>
 
                     {/* Index badges row */}
-                    <div className="flex flex-wrap items-center gap-3 mt-2">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2">
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs text-gray-500 font-medium">SSI:</span>
                         <span className="text-sm font-semibold tabular-nums text-gray-900">{item.ssi_value.toFixed(1)}</span>
@@ -157,9 +157,9 @@ export default function AttentionQueue() {
                     </div>
                   </div>
 
-                  {/* Right: Top driver + timestamp */}
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-xs text-gray-500 mb-1">{getTopDriverLabel(item)}</p>
+                  {/* Top driver + timestamp */}
+                  <div className="sm:text-right flex-shrink-0 flex sm:flex-col items-center sm:items-end gap-2 sm:gap-0">
+                    <p className="text-xs text-gray-500 sm:mb-1">{getTopDriverLabel(item)}</p>
                     <p className="text-xs text-gray-400">{timeAgo(item.computed_at)}</p>
                   </div>
                 </div>

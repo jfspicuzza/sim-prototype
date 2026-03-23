@@ -49,10 +49,10 @@ const PIPELINE_STEPS = [
 
 function PipelineFlow() {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2">
       {PIPELINE_STEPS.map((step, i) => (
         <div key={step.label} className="flex items-center gap-2">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex-shrink-0 w-40">
+          <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 shadow-sm hover:shadow-md transition-shadow flex-shrink-0 w-full md:w-40">
             <div className="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center mb-2.5">
               <step.icon className="w-5 h-5 text-brand-600" />
             </div>
@@ -60,7 +60,7 @@ function PipelineFlow() {
             <p className="text-xs text-gray-500 mt-1 leading-snug">{step.desc}</p>
           </div>
           {i < PIPELINE_STEPS.length - 1 && (
-            <ArrowRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+            <ArrowRight className="w-4 h-4 text-gray-300 flex-shrink-0 hidden md:block" />
           )}
         </div>
       ))}
