@@ -16,7 +16,6 @@ import {
   STATE_COLORS,
   TREND_LABELS,
   TREND_COLORS,
-  TREND_THRESHOLDS,
 } from '@/lib/constants'
 import type { SourceType, TrendDirection } from '@/lib/database.types'
 
