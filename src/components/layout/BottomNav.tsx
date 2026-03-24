@@ -6,7 +6,7 @@ const TABS = [
   { label: 'Dashboard', to: '/queue', icon: LayoutDashboard },
   { label: 'Students', to: '/students', icon: Users },
   { label: 'Reports', to: '/settings/scoring', icon: BarChart3 },
-  { label: 'Settings', to: '/settings/scoring', icon: Settings },
+  { label: 'Settings', to: '/settings/admin', icon: Settings },
 ]
 
 export default function BottomNav() {

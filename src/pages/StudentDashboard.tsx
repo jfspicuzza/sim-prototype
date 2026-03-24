@@ -13,6 +13,10 @@ import { TrendIndicator } from '@/components/ui/TrendIndicator'
 import { ScoreGauge } from '@/components/ui/ScoreGauge'
 import { ConfidenceBadge } from '@/components/ui/ConfidenceBadge'
 import { DriverList } from '@/components/ui/DriverList'
+import { TrendGraph } from '@/components/ui/TrendGraph'
+import { AIRecommendationPanel } from '@/components/ui/AIRecommendationPanel'
+import { InterventionTimeline } from '@/components/ui/InterventionTimeline'
+import { CaseReviewWorkspace } from '@/components/ui/CaseReviewWorkspace'
 import { timeAgo, formatDateTime } from '@/lib/utils'
 import { SOURCE_TYPE_LABELS, ALL_CATEGORIES } from '@/lib/constants'
 import type { TopDriver, ThresholdEvent, TrendDirection, Signal } from '@/lib/database.types'
@@ -88,6 +92,25 @@ export default function StudentDashboard() {
     enabled: !!studentId,
   })
 
+  // Fetch all snapshots for trend graph
+  const { data: allSnapshots = [] } = useQuery({
+    queryKey: ['sim-snapshot-history', studentId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('snapshots')
+        .select('computed_at, ssi_value, trci_value')
+        .eq('student_id', studentId!)
+        .order('computed_at', { ascending: true })
+        .limit(20)
+      if (error) throw error
+      return (data ?? []).map((s: { computed_at: string; ssi_value: number; trci_value: number }) => ({
+        date: s.computed_at,
+        value: Math.max(s.ssi_value, s.trci_value),
+      }))
+    },
+    enabled: !!studentId,
+  })
+
   const isLoading = studentLoading || snapshotLoading
 
   if (isLoading) {
@@ -114,8 +137,37 @@ export default function StudentDashboard() {
     ? (snapshot.trci_value >= snapshot.ssi_value ? snapshot.trci_state : snapshot.ssi_state)
     : 'S0'
 
+  // Mock interventions for the prototype (will be replaced with real data)
+  const mockInterventions = signals.length > 0
+    ? [
+        {
+          title: 'Support circle',
+          description: 'Student engaged with weekly check-ins.',
+          source: 'Counseling · active',
+          status: 'active' as const,
+          effectiveness: 4.2,
+        },
+      ]
+    : []
+
+  // Mock audit entries
+  const mockAuditEntries = signals.slice(0, 3).map(s => ({
+    action: s.free_text || s.category,
+    user: SOURCE_TYPE_LABELS[s.source_type] ?? s.source_type,
+    detail: `Score ${s.base_score.toFixed(1)}`,
+    date: formatDateTime(s.created_at),
+  }))
+
+  // Mock intervention outcomes for case review
+  const mockInterventionOutcomes = mockInterventions.map(iv => ({
+    title: iv.title,
+    description: iv.description,
+    source: iv.source,
+    date: formatDateTime(new Date().toISOString()),
+  }))
+
   return (
-    <div className="space-y-4 md:space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-4 md:space-y-6 max-w-4xl mx-auto pb-24 md:pb-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
@@ -135,7 +187,7 @@ export default function StudentDashboard() {
             </div>
             <p className="text-sm text-gray-500 mt-0.5 truncate">
               {student.schools?.name ?? 'No school'}
-              {student.grade ? ` \u2022 Grade ${student.grade}` : ''}
+              {student.grade ? ` · Grade ${student.grade}` : ''}
             </p>
           </div>
         </div>
@@ -287,6 +339,75 @@ export default function StudentDashboard() {
             </div>
           )}
 
+          {/* AI Recommendation Panel */}
+          <AIRecommendationPanel
+            ssiValue={snapshot.ssi_value}
+            trciValue={snapshot.trci_value}
+            ssiState={snapshot.ssi_state}
+            trciState={snapshot.trci_state}
+            ssiTrend={snapshot.ssi_trend}
+            trciTrend={snapshot.trci_trend}
+            confidence={snapshot.confidence}
+            signalCount={signals.length}
+            interventionCount={mockInterventions.length}
+          />
+
+          {/* Signal History — Mobile: Timeline Cards */}
+          <div className="md:hidden bg-white rounded-xl border border-gray-200 p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="w-4 h-4 text-brand-600" />
+              <h3 className="text-base font-semibold text-gray-900">Signals / observations timeline</h3>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">Observed notes, signals, and updates over time</p>
+            {signals.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-4">No signals recorded yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {signals.map(signal => (
+                  <div key={signal.id} className="bg-gray-50 rounded-lg px-4 py-3">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <span className="text-xs font-semibold text-gray-500 uppercase">
+                        {signal.index_type === 'SSI' ? 'Observation' : 'Note'}
+                      </span>
+                      <span className="text-xs font-bold text-gray-900 tabular-nums">
+                        {signal.base_score.toFixed(1)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-900 font-medium mb-1">
+                      {signal.free_text || signal.category}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {SOURCE_TYPE_LABELS[signal.source_type] ?? signal.source_type}
+                      {' · '}
+                      {formatDateTime(signal.created_at)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Intervention Timeline */}
+          <InterventionTimeline interventions={mockInterventions} />
+
+          {/* Trend Graph */}
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-base font-semibold text-gray-900">Trend graph</h3>
+              <TrendingUp className="w-5 h-5 text-brand-600" />
+            </div>
+            <p className="text-xs text-gray-500 mb-3">Overall score trajectory across recent assessments</p>
+            <TrendGraph data={allSnapshots} />
+          </div>
+
+          {/* Case Review Workspace */}
+          <CaseReviewWorkspace
+            signals={signals}
+            snapshotHistory={allSnapshots}
+            interventions={mockInterventionOutcomes}
+            auditEntries={mockAuditEntries}
+          />
+
           {/* Analysis Panel */}
           <div className="bg-white rounded-xl shadow-sm border p-5 md:p-6 space-y-4">
             <h3 className="text-base md:text-lg font-semibold text-gray-900">Analysis</h3>
@@ -351,41 +472,6 @@ export default function StudentDashboard() {
                   ))}
                 </tbody>
               </table>
-            )}
-          </div>
-
-          {/* Signal History — Mobile: Timeline Cards */}
-          <div className="md:hidden bg-white rounded-xl border border-gray-200 p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <AlertTriangle className="w-4 h-4 text-brand-600" />
-              <h3 className="text-base font-semibold text-gray-900">Signals / observations timeline</h3>
-            </div>
-            <p className="text-xs text-gray-500 mb-4">Observed notes, signals, and updates over time</p>
-            {signals.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">No signals recorded yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {signals.map(signal => (
-                  <div key={signal.id} className="bg-gray-50 rounded-lg px-4 py-3">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <span className="text-xs font-semibold text-gray-500 uppercase">
-                        {signal.index_type}
-                      </span>
-                      <span className="text-xs font-bold text-gray-900 tabular-nums">
-                        {signal.base_score.toFixed(1)}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-900 font-medium mb-1">
-                      {signal.free_text || signal.category}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {SOURCE_TYPE_LABELS[signal.source_type] ?? signal.source_type}
-                      {' \u2022 '}
-                      {formatDateTime(signal.created_at)}
-                    </p>
-                  </div>
-                ))}
-              </div>
             )}
           </div>
         </>

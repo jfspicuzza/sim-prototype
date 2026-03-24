@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Activity, AlertTriangle, PlusCircle, Users, Building2, Sparkles, ChevronRight } from 'lucide-react'
+import { Activity, AlertTriangle, PlusCircle, Users, Building2, Sparkles, SlidersHorizontal, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface NavItem {
@@ -17,6 +17,7 @@ const NAV_ITEMS: NavItem[] = [
 
 const SETTINGS_ITEMS: NavItem[] = [
   { label: 'Scoring Algorithm', to: '/settings/scoring', icon: Sparkles },
+  { label: 'Weights & Thresholds', to: '/settings/admin', icon: SlidersHorizontal },
 ]
 
 export default function Sidebar() {
