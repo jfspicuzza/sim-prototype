@@ -10,6 +10,7 @@ import StudentList from '@/pages/StudentList'
 import SchoolList from '@/pages/SchoolList'
 import ScoringAlgorithm from '@/pages/ScoringAlgorithm'
 import AdminSettings from '@/pages/AdminSettings'
+import SeedDemo from '@/pages/SeedDemo'
 import { SIM_ALL_ACCESS, SIM_WRITE_ACCESS } from '@/lib/constants'
 
 function LoadingSpinner() {
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="schools" element={<RequireRole allowedRoles={SIM_ALL_ACCESS}><SchoolList /></RequireRole>} />
           <Route path="settings/scoring" element={<RequireRole allowedRoles={SIM_ALL_ACCESS}><ScoringAlgorithm /></RequireRole>} />
           <Route path="settings/admin" element={<RequireRole allowedRoles={SIM_ALL_ACCESS}><AdminSettings /></RequireRole>} />
+          <Route path="settings/seed" element={<RequireRole allowedRoles={SIM_ALL_ACCESS}><SeedDemo /></RequireRole>} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
